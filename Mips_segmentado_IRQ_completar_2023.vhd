@@ -8,6 +8,11 @@
 -- Nuevas instrucciones: RTE y WRO
 -- Hay funcionalidad incompleta en este archivo, y en UD y UA. Buscar la etiqueta: completar
 ----------------------------------------------------------------------------------
+----------------------------------------------------------------------------------
+-- Completado por:
+-- 	- Gari Arellano Zubía: 848905
+-- 	- Alain Cascán Zalewska: 849183
+----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
@@ -304,7 +309,7 @@ COMPONENT Banco_MEM
 	signal Exception_accepted, RTE_ID, update_status, reset_EX, reset_MEM: std_logic;													
 	signal Data_Abort, Undef: std_logic;
 -- Bit validez etapas
-	signal valid_I_IF, valid_I_ID, valid_I_EX_in, valid_I_EX, valid_I_MEM, valid_I_WB_in, valid_I_WB: std_logic;
+	signal valid_I_IF, valid_I_ID, valid_I_EX_in, valid_I_EX, valid_I_MEM, valid_I_WB_in, valid_I_WB, valid_I_EX_AUX: std_logic;
 -- contadores
 	signal cycles: std_logic_vector(15 downto 0);
 	signal Ins, data_stalls, control_stalls, Exceptions, Exception_cycles: std_logic_vector(7 downto 0);
@@ -336,7 +341,7 @@ begin
 	------------------------------------------------------------------------------------
 	-- Completar: falta la l�gica que gestiona update_status. Dise�adla.
 	
-	--MODIFICADO EL DÍA 14/03/2023 ALAIN CASCÁN
+	--MODIFICADO EL DÍA 14/03/2023
 	update_status	<= (Exception_accepted) or (RTE_ID and valid_I_ID);
 	
 	-- Fin completar;
@@ -375,7 +380,7 @@ begin
 	-- Si paramos en ID, tambi�n hay que parar en IF. Parar_ID nos avisa de esto.
 	-- Importante: Puede ser que Parar_ID se active, y a la vez se procese una excepci�n: �hay que actualizar el pc?
 	
-	-- Modificado Gari 14/03/23
+	-- Modificado 14/03/23
 	load_PC <= not parar_ID or (Exception_accepted);
 	-- Fin completar;
 	------------------------------------------------------------------------------------
@@ -387,7 +392,7 @@ begin
 	-- Este c�digo es el mux de entrada al PC: elige entre PC+4, la direcci�n de salto generada en ID, la direcci�n de la rutina de tratamiento de la excepci�n, o la direcci�n de retorno de la excepci�n
 	-- El orden asigna prioridad si se cumplen dos o m�s condiciones			
 	
-	-- Modificado Gari 14/03/23
+	-- Modificado 14/03/23
 	PC_in <= 	x"00000008" 		when (Exception_accepted = '1') and (Data_abort = '1') else -- Si llega un data abort y est� habilitado saltamos a la direcci�n 0x00000008
 				x"0000000C" 		when (Undef='1' and Exception_accepted = '1') else -- Si llega un UNDEF saltamos a la direcci�n 0x0000000C
 				x"00000004" 		when (IRQ='1' and Exception_accepted = '1') else -- Si llega un data abort saltamos a la direcci�n 0x00000004
@@ -531,6 +536,7 @@ begin
 	reset_MEM <= (reset);
 	--si paramos en EX no hay que cargar una instrucci�n nueva en la etap MEM
 	load_MEM <= not(parar_EX);
+	valid_I_EX_AUX <= valid_I_EX and not Exception_accepted;
 	Banco_EX_MEM: Banco_MEM PORT MAP ( ALU_out_EX => ALU_out_EX, ALU_out_MEM => ALU_out_MEM, clk => clk, reset => reset_MEM, load => load_MEM, MemWrite_EX => MemWrite_EX,
 													MemRead_EX => MemRead_EX, MemtoReg_EX => MemtoReg_EX, RegWrite_EX => RegWrite_EX, MemWrite_MEM => MemWrite_MEM, MemRead_MEM => MemRead_MEM,
 													MemtoReg_MEM => MemtoReg_MEM, RegWrite_MEM => RegWrite_MEM, 
@@ -539,7 +545,7 @@ begin
 													--fin sol
 													BusB_MEM => BusB_MEM, RW_EX => RW_EX, RW_MEM => RW_MEM,
 													-- Nuevo
-													valid_I_EX => valid_I_EX, valid_I_MEM => valid_I_MEM,
+													valid_I_EX => valid_I_EX_AUX, valid_I_MEM => valid_I_MEM,
 													PC_exception_EX => PC_exception_EX, PC_exception_MEM => PC_exception_MEM); --Sol: para llevar el PC a la etapa MEM	
 													
 	
@@ -596,15 +602,13 @@ begin
 							port map (clk => clk, reset => reset, count_enable => inc_Exception_cycles, count => Exception_cycles);
 	------------------------------------------------------------------------------------
 	-- Completar:
-	--Modificado por Alain Cascan 16/03/2023
+	--Modificado 16/03/2023
 	inc_cycles <= '1';--Done
-	inc_I <= valid_I_WB; --completar
-	inc_data_stalls <= parar_ID and not Exception_accepted; --completar
-	inc_control_stalls <= salto_tomado and not parar_ID; --completar
-	inc_Exceptions <= Exception_accepted;--completar
-	inc_Exception_cycles <= MIPS_status(0);	--completar	
+	inc_I <= valid_I_WB;
+	inc_data_stalls <= parar_ID and not Exception_accepted;
+	inc_control_stalls <= salto_tomado and not parar_ID;
+	inc_Exceptions <= Exception_accepted;
+	inc_Exception_cycles <= MIPS_status(0);		
 	-- Fin completar;
 	------------------------------------------------------------------------------------			
 end Behavioral;
-
--- Prueba

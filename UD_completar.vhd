@@ -1,4 +1,8 @@
-
+----------------------------------------------------------------------------------
+-- Completado por:
+-- 	- Gari Arellano Zubía: 848905
+-- 	- Alain Cascán Zalewska: 849183
+----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 --Mux 4 a 1
@@ -40,10 +44,9 @@ begin
 -- 	* si la instrucci?n que hay en ID no es v?lida hay que ignorarla cuando si nos dice que va a saltar (igual que si nos dice cualuier otra cosa), s?lo hacmeos caso a las instrucciones v?lidas
 -- Completar: activar Kill_IF cuando proceda
 
--- Completada Gari y Alen 14/03/23
+-- Completada 14/03/23
 	Kill_IF <= '1' when ((salto_tomado='1' and valid_I_ID='1' and BEQ_rs = '0' and BEQ_rt = '0' and IR_op_code=BEQ) or ( IR_op_code=RTE_opcode)) else '0';
--- Paramos la instrucci�n siguiente siempre y cuando se tome el sato, la instrucci�n en ID sea valida (el beq es valido) y la instrucci�n que 
--- tengo en EX NO va a  escribir en registro � utiliza registros distintos a los que se van a utilizar en el BEQ.
+
 -------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------
 -- Detecci?n de dependencias de datos:	
@@ -52,7 +55,7 @@ begin
 	-- dep_rs_EX: la I en EX escribe en el registro rs y la I en ID usa rs (es decir no es un NOP ni RTE)
 	dep_rs_EX 	<= 	'1' when ((valid_I_EX = '1') AND (Reg_Rs_ID = RW_EX) and (RegWrite_EX = '1') and (IR_op_code /= NOP) and (IR_op_code /= RTE_opcode))	else '0';
 								
-	-- Completada Gari y Alen 14/03/23
+	-- Completada 14/03/23
 	------------------------------------------------------------------------------------
 	-- Completar. Falta la l?gica que genera el valor correcto de estas se?ales.
 	-- dep_rs_Mem: 
@@ -66,7 +69,6 @@ begin
 -------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------
 -- Riesgos de datos:
---FALTA RESPUESTA DE RESANO
 	-- 1) lw_uso: Si hay dependencia y la instrucci?n en EX es lw tenemos un lw_uso
 	ld_uso_rs <= 	'1' when ((dep_rs_EX='1') and (MemRead_EX='1'))  else '0';
 	-- Si estamos en ID y hay dependencia con RS en EX y la instruccion en EX va a leer de memoria, entonces es un Load y tengo dependencia con el.

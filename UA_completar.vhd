@@ -1,3 +1,8 @@
+----------------------------------------------------------------------------------
+-- Completado por:
+-- 	- Gari Arellano Zubía: 848905
+-- 	- Alain Cascán Zalewska: 849183
+----------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 -- Unidad de anticipación incompleta. Ahora mismo selecciona siempre la entrada 0
