@@ -45,7 +45,7 @@ begin
 -- Completar: activar Kill_IF cuando proceda
 
 -- Completada 14/03/23
-	Kill_IF <= '1' when ((salto_tomado='1' and valid_I_ID='1' and BEQ_rs = '0' and BEQ_rt = '0' and IR_op_code=BEQ) or ( IR_op_code=RTE_opcode)) else '0';
+	Kill_IF <= '1' when valid_I_ID='1'  and (( salto_tomado='1' BEQ_rs = '0' and BEQ_rt = '0' and IR_op_code=BEQ) or ( IR_op_code=RTE_opcode )) else '0';
 
 -------------------------------------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------
